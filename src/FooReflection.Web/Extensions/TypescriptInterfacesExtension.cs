@@ -93,17 +93,10 @@ namespace FooReflection.Web.Extensions
                 .ToArray();
 
             var additionalTypes = GetAdditionalTypes(types);
-            /*foreach (var type in types)
-            {
-                additionalTypes.AddRange(GetAdditionalTypes(type));
-                additionalTypes.AddRange(type
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Select(s => s.PropertyType)
-                    .Select(ReplaceByGenericArgument)
-                    .Where(t => !t.IsPrimitive && !NonPrimitivesExcludeList.Contains(t)));
-            }*/
 
-            return types.Concat(additionalTypes).ToArray();
+            return types
+                .Concat(additionalTypes)
+                .ToArray();
         }
 
         private static IEnumerable<Type> GetAdditionalTypes(IEnumerable<Type> types)
@@ -120,8 +113,12 @@ namespace FooReflection.Web.Extensions
             }
             if (mergeTypes.Count == 0)
                 return additionalTypes;
-            additionalTypes = additionalTypes.Concat(mergeTypes).ToList();
-            return additionalTypes.Concat(GetAdditionalTypes(mergeTypes)).ToList();
+            additionalTypes = additionalTypes
+                .Concat(mergeTypes)
+                .ToList();
+            return additionalTypes
+                .Concat(GetAdditionalTypes(mergeTypes))
+                .ToList();
         }
 
         private static Type ReplaceByGenericArgument(Type type)
