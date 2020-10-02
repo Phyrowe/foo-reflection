@@ -4,20 +4,20 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 
 namespace FooReflection.Web.Extensions
 {
     public static class TypeScriptInterfacesExtension
     {
-        private static readonly Type[] NonPrimitivesExcludeList = {
-                typeof(object),
-                typeof(string),
-                typeof(decimal),
-                typeof(void),
-                typeof(System.DateTime)
-            };
+        private static readonly Type[] NonPrimitivesExcludeList = 
+        {
+            typeof(object),
+            typeof(string),
+            typeof(decimal),
+            typeof(void),
+            typeof(DateTime),
+        };
 
         private static readonly IDictionary<Type, string> ConvertedTypes = new Dictionary<Type, string>
         {
@@ -37,7 +37,7 @@ namespace FooReflection.Web.Extensions
             [typeof(bool)] = "boolean",
             [typeof(object)] = "any",
             [typeof(void)] = "void",
-            [typeof(DateTime)] = "Date"
+            [typeof(DateTime)] = "Date",
         };
 
 
@@ -79,7 +79,7 @@ namespace FooReflection.Web.Extensions
                 .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(controllerBaseType));
 
             var actions = controllers.SelectMany(c => c.GetMethods()
-                .Where(m => m.IsPublic &&
+                .Where(m => m.IsPublic && 
                             m.GetCustomAttributes().Any(a => actionAttributeTypes.Contains(a.GetType())))
             );
 
@@ -135,15 +135,6 @@ namespace FooReflection.Web.Extensions
 
             var genericArgument = type.GenericTypeArguments.First();
 
-            var isTask = type.GetGenericTypeDefinition() == typeof(Task<>);
-            var isActionResult = type.GetGenericTypeDefinition() == typeof(Microsoft.AspNetCore.Mvc.ActionResult<>);
-            var isEnumerable = typeof(IEnumerable<>).MakeGenericType(genericArgument).IsAssignableFrom(type);
-
-            if (!isTask && !isActionResult && !isEnumerable)
-            {
-                throw new InvalidOperationException();
-            }
-
             if (genericArgument.IsConstructedGenericType)
             {
                 return ReplaceByGenericArgument(genericArgument);
@@ -162,7 +153,7 @@ namespace FooReflection.Web.Extensions
 
             foreach (Type t in types)
             {
-                lines.Add($"");
+                lines.Add(string.Empty);
 
                 if (t.IsClass || t.IsInterface)
                 {
@@ -200,7 +191,8 @@ namespace FooReflection.Web.Extensions
                 }
                 if (propertyType.IsGenericType)
                 {
-                    foreach (var propertyArguments in propertyType.GetGenericArguments())
+                    foreach (var propertyArguments in propertyType.GetGenericArguments().Where(t => 
+                        !NonPrimitivesExcludeList.Contains(t)))
                     {
                         string importPath = Regex.Replace(propertyArguments.Namespace,
                             @"(\w+)|(\.\w+)", "../",
