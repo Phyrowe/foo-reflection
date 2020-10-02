@@ -188,7 +188,7 @@ namespace FooReflection.Web.Extensions
             foreach (var property in type.GetProperties().Where(p => p.GetMethod.IsPublic))
             {
                 Type propertyType = property.PropertyType;
-                if ((propertyType.IsClass || propertyType.IsInterface)
+                if ((propertyType.IsClass || propertyType.IsInterface || propertyType.IsEnum)
                     && !propertyType.IsGenericType && !NonPrimitivesExcludeList.Contains(propertyType))
                 {
                     string importPath = Regex.Replace(propertyType.Namespace,
